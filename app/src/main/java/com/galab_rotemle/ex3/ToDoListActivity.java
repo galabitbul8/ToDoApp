@@ -24,7 +24,9 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
         setTitle("Todo List" + "("+username+")");
+
         floatingActionButton = findViewById(R.id.addTask);
+        floatingActionButton.setOnClickListener(this);
     }
 
     public boolean onCreateOptionsMenu(Menu menu)
@@ -48,6 +50,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         if(floatingActionButton.getId() == v.getId()) {
             Intent intent = new Intent(ToDoListActivity.this, EditorActivity.class);
+            intent.putExtra("username",username);
             startActivity(intent);
         }
     }
