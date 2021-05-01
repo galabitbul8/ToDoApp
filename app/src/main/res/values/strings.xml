@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ToDoApp</string>
+    <string name="titleLogin">ToDo Login</string>
+    <string name="add_new_todo">ADD new Todo</string>
+    <string name="title">Title:</string>
+    <string name="description">Description:</string>
+</resources>
