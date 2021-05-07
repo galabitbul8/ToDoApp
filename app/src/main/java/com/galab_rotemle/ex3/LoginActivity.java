@@ -22,8 +22,7 @@ import android.widget.Toast;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button login;
-    private EditText username;
-    private EditText password;
+    private EditText username, password;
     private SQLiteDatabase TodosDB = null;
     public static final String MY_DB_NAME = "TodosDB";
     private SharedPreferences.Editor editor;
@@ -74,7 +73,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(this, "Wrong password", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
             }
             else {
                 TodosDB.execSQL("INSERT INTO users(name, password) VALUES (?, ?)", new String[] {username.getText().toString(), password.getText().toString()});
