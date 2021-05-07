@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -20,7 +21,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     private String username;
     private FloatingActionButton floatingActionButton;
     private SharedPreferences.Editor editor;
-
+    private SQLiteDatabase TodosDB = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +44,11 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         inflater.inflate(R.menu.exitmenu, menu);
         return true;
     }
-
+    @Override
+    public void onBackPressed() {
+        // TODO: check what should we do in case of going back
+        Log.d("myLog", "onBackPressed: ");
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
