@@ -3,45 +3,111 @@ package com.galab_rotemle.ex3;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button login;
     private EditText username;
+    private EditText password;
+    private SQLiteDatabase TodosDB = null;
+    public static final String MY_DB_NAME = "TodosDB";
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sp = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
+        editor = sp.edit();
+        boolean isLogged = sp.getBoolean("isLogged", false);
+
         setContentView(R.layout.activity_login);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setTitle(getString(R.string.titleLogin));
-
         login = findViewById(R.id.login);
-        login.setOnClickListener(this);
 
-        username = findViewById(R.id.username);
-
+        if(!isLogged) {
+            login.setOnClickListener(this);
+            login.setEnabled((false));
+        }
+        createDB();
+        if(isLogged) {
+            Intent intent = new Intent(LoginActivity.this, ToDoListActivity.class);
+            intent.putExtra("username",sp.getString("username", ""));
+            startActivity(intent);
+        }
+        else {
+            setTitle(getString(R.string.titleLogin));
+            username = findViewById(R.id.username);
+            password = findViewById(R.id.password);
+        }
     }
 
 
     @Override
     public void onClick(View v) {
+        Log.d("myLog", "onClick: " + username.getText());
         // todo : if user and password currect
         if(login.getId() == v.getId()) {
+            // check if both fields aren't empty
+            if(username.getText().length() == 0 || password.getText().length() == 0) {
+                Toast.makeText(this, "Please provide username and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String getUserQuery = "SELECT name, password FROM users WHERE name = ? ";
+            Cursor cursor = TodosDB.rawQuery(getUserQuery, new String[] {username.getText().toString()});
+            if(cursor.moveToFirst()) {
+                if(!password.getText().toString().equals(cursor.getString(1))) {
+                    Toast.makeText(this, "Wrong password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+            }
+            else {
+                TodosDB.execSQL("INSERT INTO users(name, password) VALUES (?, ?)", new String[] {username.getText().toString(), password.getText().toString()});
+            }
+            editor.putBoolean("isLogged", true);
+            editor.putString("username", username.getText().toString());
+            editor.commit();
             Intent intent = new Intent(LoginActivity.this, ToDoListActivity.class);
             intent.putExtra("username",username.getText().toString());
             startActivity(intent);
         }
     }
+
+    public void createDB()
+    {
+        try
+        {
+            // Opens a current database or creates it
+            TodosDB = openOrCreateDatabase(MY_DB_NAME, MODE_PRIVATE, null);
+            String createUserTableQuery = "CREATE TABLE IF NOT EXISTS users (name VARCHAR primary key, password VARCHAR);";
+            String createTodosTableQuery = "CREATE TABLE IF NOT EXISTS todos (id integer primary key, username VARCHAR, title VARCHAR, description VARCHAR, datetime INTEGER );";
+
+            TodosDB.execSQL(createUserTableQuery);
+            TodosDB.execSQL(createTodosTableQuery);
+        }
+        catch (Exception e)
+        {
+            Log.d("debug", "Error Creating Database");
+        }
+        // Make login clickable after the database is loaded/created
+        login.setEnabled(true);
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
