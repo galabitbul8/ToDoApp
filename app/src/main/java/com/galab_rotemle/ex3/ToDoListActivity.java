@@ -2,9 +2,12 @@ package com.galab_rotemle.ex3;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +19,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
 
     private String username;
     private FloatingActionButton floatingActionButton;
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +29,9 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
         setTitle("Todo List" + "("+username+")");
+
+        SharedPreferences sp = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
+        editor = sp.edit();
 
         floatingActionButton = findViewById(R.id.addTask);
         floatingActionButton.setOnClickListener(this);
@@ -40,6 +48,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
        if(item.getItemId() == R.id.exit){
+           editor.putBoolean("isLogged", false);
+           editor.commit();
            Intent intent = new Intent(ToDoListActivity.this, LoginActivity.class);
            startActivity(intent);
        }
