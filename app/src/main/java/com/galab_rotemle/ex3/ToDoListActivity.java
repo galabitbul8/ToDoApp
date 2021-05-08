@@ -13,8 +13,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 
 public class ToDoListActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -22,11 +25,27 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     private FloatingActionButton floatingActionButton;
     private SharedPreferences.Editor editor;
     private SQLiteDatabase TodosDB = null;
+    private ArrayList<TodoInfo> todosList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_to_do_list);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        // Create our list
+        todosList = new ArrayList<TodoInfo>();
+
+        // Create the adapter
+        TodosListAdapter todoAdapter = new TodosListAdapter(this, todosList);
+
+        // Get a reference to the ListView, and attach the adapter to the listView.
+        ListView listView = findViewById(R.id.todosListID);
+        listView.setAdapter(todoAdapter);
+
+        //TODO: add implement for ListView.OnItemClickListener
+//        listView.setOnItemClickListener(this);
+
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
         setTitle("Todo List" + "("+username+")");
