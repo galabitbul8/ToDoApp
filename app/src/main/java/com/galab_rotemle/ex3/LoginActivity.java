@@ -77,6 +77,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             else {
                 TodosDB.execSQL("INSERT INTO users(name, password) VALUES (?, ?)", new String[] {username.getText().toString(), password.getText().toString()});
             }
+            cursor.close();
             editor.putBoolean("isLogged", true);
             editor.putString("username", username.getText().toString());
             editor.commit();

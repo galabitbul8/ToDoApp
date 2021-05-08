@@ -57,7 +57,6 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
             // Open our DB
             TodosDB = openOrCreateDatabase(MY_DB_NAME, MODE_PRIVATE, null);
             Log.d("myLog", "openDB: ");
-
         }
         catch (Exception e)
         {
