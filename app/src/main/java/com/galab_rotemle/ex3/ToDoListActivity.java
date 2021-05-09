@@ -48,8 +48,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         ListView listView = findViewById(R.id.todosListID);
         listView.setAdapter(todoAdapter);
 
-        //TODO: add implement for ListView.OnItemClickListener
-//        listView.setOnItemClickListener(this);
+        listView.setOnItemClickListener(this);
 
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
@@ -101,6 +100,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
         TodoInfo todoInfo = todosList.get(position);
+        Log.d("myLog", "onItemClick position: " + position);
+
         Log.d("myLog", "onItemClick: " + todoInfo.getTitle());
     }
 
