@@ -79,10 +79,19 @@
 
             <EditText
                 android:id="@+id/Date"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:ems="10"
                 android:inputType="date" />
+
+            <Button
+                android:id="@+id/buttonDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textAllCaps="false"
+                android:drawableLeft="@drawable/ic_baseline_date_range_24"
+                android:text="Picker" />
 
         </LinearLayout>
 
@@ -100,10 +109,19 @@
 
             <EditText
                 android:id="@+id/Time"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:ems="10"
                 android:inputType="time" />
+
+            <Button
+                android:id="@+id/buttonTime"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textAllCaps="false"
+                android:drawableLeft="@drawable/ic_baseline_access_time_24"
+                android:text="Picker" />
         </LinearLayout>
 
         <Button
