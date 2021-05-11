@@ -84,6 +84,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Intent intent = new Intent(LoginActivity.this, ToDoListActivity.class);
             intent.putExtra("username",username.getText().toString());
             startActivity(intent);
+            this.finish();
         }
     }
 
@@ -94,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // Opens a current database or creates it
             TodosDB = openOrCreateDatabase(MY_DB_NAME, MODE_PRIVATE, null);
             String createUserTableQuery = "CREATE TABLE IF NOT EXISTS users (name VARCHAR primary key, password VARCHAR);";
-            String createTodosTableQuery = "CREATE TABLE IF NOT EXISTS todos (id integer primary key, username VARCHAR, title VARCHAR, description VARCHAR, datetime INTEGER );";
+            String createTodosTableQuery = "CREATE TABLE IF NOT EXISTS todos (id integer primary key, username VARCHAR, title VARCHAR, description VARCHAR, datetime VARCHAR );";
 
             TodosDB.execSQL(createUserTableQuery);
             TodosDB.execSQL(createTodosTableQuery);

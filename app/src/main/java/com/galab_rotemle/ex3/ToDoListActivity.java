@@ -1,8 +1,10 @@
 package com.galab_rotemle.ex3;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -22,7 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class ToDoListActivity extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener {
+public class ToDoListActivity extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener, ListView.OnItemLongClickListener {
 
     private String username;
     private boolean commingFromEdit = false;
@@ -30,6 +32,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     private SharedPreferences.Editor editor;
     private SQLiteDatabase TodosDB = null;
     private ArrayList<TodoInfo> todosList;
+    private TodosListAdapter todoAdapter ;
     public static final String MY_DB_NAME = "TodosDB";
 
     @Override
@@ -42,14 +45,15 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         todosList = new ArrayList<TodoInfo>();
 
         // Create the adapter
-        TodosListAdapter todoAdapter = new TodosListAdapter(this, todosList);
+        todoAdapter = new TodosListAdapter(this, todosList);
 
         // Get a reference to the ListView, and attach the adapter to the listView.
         ListView listView = findViewById(R.id.todosListID);
         listView.setAdapter(todoAdapter);
 
         //TODO: add implement for ListView.OnItemClickListener
-//        listView.setOnItemClickListener(this);
+        listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
@@ -94,6 +98,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
             Intent intent = new Intent(ToDoListActivity.this, EditorActivity.class);
             intent.putExtra("username",username);
             startActivity(intent);
+            this.finish();
         }
     }
 
@@ -104,19 +109,56 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         Log.d("myLog", "onItemClick: " + todoInfo.getTitle());
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        DeleteTodoDialog(this, position);
+        Toast.makeText(this, "Todo was deleted", Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    public void DeleteTodoDialog(Context context,int index){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(ToDoListActivity.this);
+        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                String deleteTask = "DELETE FROM todos WHERE id=" + todosList.get(index).getId() + ";";
+                TodosDB.execSQL(deleteTask);
+
+                todosList.remove(index);
+                todoAdapter.notifyDataSetChanged();
+            }
+        });
+
+        dialog.setIcon(R.drawable.exit);
+        dialog.setTitle("Delete Todo");
+        dialog.setMessage("Are you sure you want to delete" + todosList.get(index).getTitle());
+        dialog.setNegativeButton("NO",new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            { }
+        });
+        dialog.show();
+
+    }
+
     private void loadListData() {
-        String loadDataQuery = "SELECT title, description, datetime FROM todos"
+        String loadDataQuery = "SELECT id,title, description, datetime FROM todos"
                 + " WHERE username = ? ";
             Cursor cursor = TodosDB.rawQuery(loadDataQuery, new String[] {username});
         Log.d("myLog1", "before loadListData: ");
         if(cursor.moveToFirst()) {
+            int id;
             String title, description;
-            Integer datetime;
+            long datetime;
             do {
+                id =  cursor.getInt(cursor.getColumnIndex("id"));
                 title = cursor.getString(cursor.getColumnIndex("title"));
                 description = cursor.getString(cursor.getColumnIndex("description"));
-                datetime = cursor.getInt(cursor.getColumnIndex("datetime"));
-                todosList.add(new TodoInfo(title, description, datetime));
+                datetime = cursor.getLong(cursor.getColumnIndex("datetime"));
+                todosList.add(new TodoInfo(id,title, description, datetime));
 
             } while(cursor.moveToNext());
             cursor.close();

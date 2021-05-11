@@ -1,18 +1,30 @@
 package com.galab_rotemle.ex3;
 
+import java.text.SimpleDateFormat;
+
 public class TodoInfo {
+    private int id;
     private String title;
     private String description;
     private String date;
     private String time;
 
-    public TodoInfo(String title, String description, int datetime)
+    public TodoInfo(int id,String title, String description, long datetime)
     {
         this.title = title;
         this.description = description;
         // TODO: change this - need to get the datetime integer and transform it into strings (Calender)
-        this.date = "11/02/1993";
-        this.time ="14:50";
+        this.date = new SimpleDateFormat("dd/MM/yyyy").format(datetime);
+        this.time =new SimpleDateFormat("HH:mm").format(datetime);
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
