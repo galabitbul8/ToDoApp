@@ -41,7 +41,9 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         setTitle("ToDo Editor");
         AddButton = findViewById(R.id.addTask);
         AddButton.setOnClickListener(this);
-
+        Bundle bundle = getIntent().getExtras();
+        String titleF = bundle.getString("title");
+        Log.d("myLog3", "onCreate: bundle " +titleF );
         // editText
         title = findViewById(R.id.Title);
         descirption = findViewById(R.id.Description);
