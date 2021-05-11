@@ -113,6 +113,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         intent.putExtra("description",todoInfo.getDescription());
         intent.putExtra("date",todoInfo.getDate());
         intent.putExtra("time",todoInfo.getTime());
+        intent.putExtra("Id",todoInfo.getId());
+        intent.putExtra("username",username);
         startActivity(intent);
 
     }
