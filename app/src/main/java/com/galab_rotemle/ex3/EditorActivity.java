@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
     public static final String MY_DB_NAME = "TodosDB";
     private EditText title, descirption, date, time;
     private Integer todoId = null;
-    Calendar cldr;
+    private Calendar cldr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,11 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
             String username = bundle.getString("username");
 //            intent.putExtra("username",username);
 //            startActivity(intent);
-            addNewTodo(username);
+            try {
+                addNewTodo(username);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
         }
         else if(DateButton.getId() == v.getId()){
@@ -94,15 +99,24 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void addNewTodo(String username) {
+    private void addNewTodo(String username) throws ParseException {
         Log.d("myLog", "beforeaddNewTodo: ");
+        String dateString = date.getText().toString();
+        String timeString = time.getText().toString();
+
+        Date dateAndTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString + " " + timeString);
+        long datetime = dateAndTime.getTime();
         // TODO: get the date and time values and store the integer representation
         String insertTodoQuery = "INSERT INTO todos (username, title, datetime, description) "
-                + "VALUES (? ,? , '25/02/1990' ,?) ";
+                + "VALUES (? ,? , ? ,?) ";
 
-        TodosDB.execSQL(insertTodoQuery,  new String[] {username, title.getText().toString(), descirption.getText().toString()});
+        TodosDB.execSQL(insertTodoQuery,  new String[] {username, title.getText().toString(),datetime+"", descirption.getText().toString()});
         Toast.makeText(this, "Todo was ADDED", Toast.LENGTH_SHORT).show();
-        //TODO: add the ALARM notification thing after validating the date time info
+        //add the ALARM notification thing after validating the date time info
+        title.setText("");
+        descirption.setText("");
+        date.setText("");
+        time.setText("");
     }
 
 
@@ -158,5 +172,16 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         Matcher matcher = p.matcher(time.getText().toString());
         return matcher.matches();
 
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Bundle bundle = getIntent().getExtras();
+        String username = bundle.getString("username");
+        Intent intent = new Intent(EditorActivity.this, ToDoListActivity.class);
+        intent.putExtra("username",username);
+        startActivity(intent);
+        this.finish();
     }
 }
