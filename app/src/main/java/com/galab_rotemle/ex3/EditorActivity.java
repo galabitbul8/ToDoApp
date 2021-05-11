@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -30,8 +31,9 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
     private Button AddButton,DateButton,TimeButton;
     private SQLiteDatabase TodosDB = null;
     public static final String MY_DB_NAME = "TodosDB";
-    private EditText title, descirption, date, time;
-    private Integer todoId = null;
+    private EditText title, description, date, time;
+    private TextView header;
+    private Integer todoId = 0;
     private Calendar cldr;
 
     @Override
@@ -42,13 +44,21 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         setTitle("ToDo Editor");
         AddButton = findViewById(R.id.addTask);
         AddButton.setOnClickListener(this);
+        Bundle bundle = getIntent().getExtras();
+        String titleF = bundle.getString("title");
+        todoId = bundle.getInt("Id");
+        header =(TextView) findViewById(R.id.header);
 
+        updateHeader((todoId));
         // editText
         title = findViewById(R.id.Title);
-        descirption = findViewById(R.id.Description);
+        description = findViewById(R.id.Description);
         date = findViewById(R.id.Date);
         time = findViewById(R.id.Time);
 
+        // update text
+        if(todoId != 0)
+            insertTodoFields(bundle);
         //pickers
         DateButton = findViewById(R.id.buttonDate);
         DateButton.setOnClickListener(this);
@@ -70,7 +80,15 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
 //            intent.putExtra("username",username);
 //            startActivity(intent);
             try {
-                addNewTodo(username);
+                String validationStr = validateFields();
+                if(validationStr.length() != 0) {
+                    Toast.makeText(this, validationStr, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(todoId == 0)
+                    addNewTodo(username);
+                else
+                    editTodo();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -108,15 +126,34 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         String insertTodoQuery = "INSERT INTO todos (username, title, datetime, description) "
                 + "VALUES (? ,? , ? ,?) ";
 
-        TodosDB.execSQL(insertTodoQuery,  new String[] {username, title.getText().toString(),datetime+"", descirption.getText().toString()});
+
+        TodosDB.execSQL(insertTodoQuery,  new String[] {username, title.getText().toString(),datetime+"", description.getText().toString()});
         Toast.makeText(this, "Todo was ADDED", Toast.LENGTH_SHORT).show();
-        //add the ALARM notification thing after validating the date time info
+        //TODO: add the ALARM notification thing after validating the date time info
         title.setText("");
-        descirption.setText("");
+        description.setText("");
         date.setText("");
         time.setText("");
+
+
     }
 
+    private void editTodo() throws ParseException {
+        String dateString = date.getText().toString();
+        String timeString = time.getText().toString();
+
+        Date dateAndTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString + " " + timeString);
+        long datetime = dateAndTime.getTime();
+
+
+        String updateTodoQuery = "UPDATE todos SET title=?, description=?, datetime=? WHERE id=? ";
+        TodosDB.execSQL(updateTodoQuery,  new String[] {title.getText().toString(),description.getText().toString(), datetime+"", todoId.toString() });
+        Toast.makeText(this, "Todo was UPDATED", Toast.LENGTH_SHORT).show();
+        //TODO: add the ALARM notification thing after validating the date time info
+
+
+        onBackPressed();
+    }
 
     private void DatePicker(){
         int day = cldr.get(Calendar.DAY_OF_MONTH);
@@ -181,5 +218,39 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         intent.putExtra("username",username);
         startActivity(intent);
         this.finish();
+    }
+
+    private void insertTodoFields(Bundle bundle) {
+        title.setText(bundle.getString("title"));
+        description.setText(bundle.getString("description"));
+        date.setText(bundle.getString("date"));
+        time.setText(bundle.getString("time"));
+    }
+
+    private void updateHeader(Integer todoId) {
+        if(todoId == 0) {
+            header.setText("ADD new Todo");
+            AddButton.setText("ADD");
+        }
+        else {
+            header.setText("UPDATE Todo (id="+ todoId.toString() + ")");
+            AddButton.setText("UPDATE");
+        }
+    }
+    private String validateFields() {
+        String errorMessage = "";
+        if(title.getText().length() == 0)
+            errorMessage += "Title is missing, ";
+        if(description.getText().length() == 0)
+            errorMessage += "Description is missing, ";
+        if(date.getText().length() == 0)
+            errorMessage += "Date is missing, ";
+        else if(validateDate() == false)
+            errorMessage += "Date is invalid, ";
+        if(time.getText().length() == 0)
+            errorMessage += "Time is missing, ";
+        else if(validateTime() == false)
+            errorMessage += "Time is invalid, ";
+        return errorMessage;
     }
 }

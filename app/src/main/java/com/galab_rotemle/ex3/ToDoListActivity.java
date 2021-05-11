@@ -106,7 +106,17 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
         TodoInfo todoInfo = todosList.get(position);
-        Log.d("myLog", "onItemClick: " + todoInfo.getTitle());
+        commingFromEdit = true;
+        Intent intent = new Intent(ToDoListActivity.this, EditorActivity.class);
+
+        intent.putExtra("title",todoInfo.getTitle());
+        intent.putExtra("description",todoInfo.getDescription());
+        intent.putExtra("date",todoInfo.getDate());
+        intent.putExtra("time",todoInfo.getTime());
+        intent.putExtra("Id",todoInfo.getId());
+        intent.putExtra("username",username);
+        startActivity(intent);
+
     }
 
     @Override
