@@ -18,13 +18,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class ToDoListActivity extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener, ListView.OnItemLongClickListener {
+public class ToDoListActivity extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener, ListView.OnItemLongClickListener, SearchView.OnQueryTextListener {
 
     private String username;
     private boolean commingFromEdit = false;
@@ -34,6 +35,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     private ArrayList<TodoInfo> todosList;
     private TodosListAdapter todoAdapter ;
     public static final String MY_DB_NAME = "TodosDB";
+    private SearchView searchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +52,12 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         // Get a reference to the ListView, and attach the adapter to the listView.
         ListView listView = findViewById(R.id.todosListID);
         listView.setAdapter(todoAdapter);
-
+        listView.setTextFilterEnabled((true));
         //TODO: add implement for ListView.OnItemClickListener
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
-
+        searchBar =(SearchView) findViewById(R.id.searchView);
+        searchBar.setOnQueryTextListener(this);
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("username");
         setTitle("Todo List" + "("+username+")");
@@ -66,6 +69,20 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         floatingActionButton.setOnClickListener(this);
 
         openDB();
+    }
+
+    @Override
+    public boolean onQueryTextChange(String text) {
+        // Here is where we are going to implement the filter logic
+        Log.d("myLog4", "onQueryTextChange: " + text);
+        todoAdapter.getFilter().filter(text);
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Log.d("myLog4", "onQueryTextSubmit: " + query);
+        return false;
     }
 
     public boolean onCreateOptionsMenu(Menu menu)
@@ -139,6 +156,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
                 todosList.remove(index);
                 todoAdapter.notifyDataSetChanged();
             }
+
         });
 
         dialog.setIcon(R.drawable.exit);
@@ -171,6 +189,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
                 todosList.add(new TodoInfo(id,title, description, datetime));
 
             } while(cursor.moveToNext());
+            todoAdapter.updateList(todosList);
+            todoAdapter.notifyDataSetChanged();
             cursor.close();
         }
     }
@@ -202,12 +222,12 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("myLog1", "onStart: ");
+        Log.d("myLog6", "onStart: ");
     }
-
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("myLog1", "onStop: ");
+        Log.d("myLog6", "onStop: ");
     }
+
 }
