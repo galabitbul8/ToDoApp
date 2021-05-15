@@ -176,7 +176,7 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 String days = String.format(Locale.getDefault(),"%02d",dayOfMonth);
-                String months = String.format(Locale.getDefault(),"%02d",monthOfYear) + 1;
+                String months = String.format(Locale.getDefault(),"%02d",monthOfYear + 1);
                 String years = String.format(Locale.getDefault(),"%04d",year);
                 date.setText(String.format("%s/%s/%s",days,months,years));
             }
