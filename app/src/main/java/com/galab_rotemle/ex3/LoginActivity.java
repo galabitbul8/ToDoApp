@@ -47,6 +47,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Intent intent = new Intent(LoginActivity.this, ToDoListActivity.class);
             intent.putExtra("username",sp.getString("username", ""));
             startActivity(intent);
+            this.finish();
         }
         else {
             setTitle(getString(R.string.titleLogin));

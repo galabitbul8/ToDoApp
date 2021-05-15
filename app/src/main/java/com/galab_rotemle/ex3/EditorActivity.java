@@ -1,13 +1,19 @@
 package com.galab_rotemle.ex3;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +35,7 @@ import java.util.regex.Pattern;
 
 public class EditorActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int ALARM_ID = 111;
     private Button AddButton,DateButton,TimeButton;
     private SQLiteDatabase TodosDB = null;
     public static final String MY_DB_NAME = "TodosDB";
@@ -36,6 +43,11 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
     private TextView header;
     private Integer todoId = 0;
     private Calendar cldr;
+    private NotificationManager notificationManager;
+    private static final String CHANNEL_ID = "channel_todo";
+    private static final CharSequence CHANNEL_NAME = "Todo Channel";
+    private int notificationID, tableLastItemId;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,21 +57,24 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         setTitle("ToDo Editor");
         AddButton = findViewById(R.id.addTask);
         AddButton.setOnClickListener(this);
+        // get the to_do information
         Bundle bundle = getIntent().getExtras();
         String titleF = bundle.getString("title");
+        username = bundle.getString("username");
         todoId = bundle.getInt("Id");
+        tableLastItemId = bundle.getInt("tableLastItemId") + 1;
         header =(TextView) findViewById(R.id.header);
-
+        // determine the header (update / add new)
         updateHeader((todoId));
-        // editText
+
         title = findViewById(R.id.Title);
         description = findViewById(R.id.Description);
         date = findViewById(R.id.Date);
         time = findViewById(R.id.Time);
-
         // update text
         if(todoId != 0)
             insertTodoFields(bundle);
+
         //pickers
         DateButton = findViewById(R.id.buttonDate);
         DateButton.setOnClickListener(this);
@@ -67,16 +82,16 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         TimeButton.setOnClickListener(this);
 
         cldr = Calendar.getInstance();
-        Log.d("myLog", "onCreate editor: ");
         openDB();
     }
+
+
 
     @Override
     public void onClick(View v) {
         if(AddButton.getId() == v.getId()) {
-            Bundle bundle = getIntent().getExtras();
-            String username = bundle.getString("username");
             try {
+                // validate the fields and add the to_do afterwards
                 String validationStr = validateFields();
                 if(validationStr.length() != 0) {
                     Toast.makeText(this, validationStr, Toast.LENGTH_SHORT).show();
@@ -104,35 +119,33 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         {
             // Open our DB
             TodosDB = openOrCreateDatabase(MY_DB_NAME, MODE_PRIVATE, null);
-            Log.d("myLog", "openDB: ");
         }
         catch (Exception e)
         {
-            Log.d("debug", "Error Opening Database");
+            e.printStackTrace();
         }
     }
 
     private void addNewTodo(String username) throws ParseException {
-        Log.d("myLog", "beforeaddNewTodo: ");
         String dateString = date.getText().toString();
         String timeString = time.getText().toString();
 
         Date dateAndTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString + " " + timeString);
         long datetime = dateAndTime.getTime();
-        // TODO: get the date and time values and store the integer representation
+
         String insertTodoQuery = "INSERT INTO todos (username, title, datetime, description) "
                 + "VALUES (? ,? , ? ,?) ";
 
-
         TodosDB.execSQL(insertTodoQuery,  new String[] {username, title.getText().toString(),datetime+"", description.getText().toString()});
+        // add an alarm in case the date is in the future
+        if(checkIfFutureTodo(datetime))
+            createOneTimeAlarm(tableLastItemId++, datetime);
+
         Toast.makeText(this, "Todo was ADDED", Toast.LENGTH_SHORT).show();
-        //TODO: add the ALARM notification thing after validating the date time info
         title.setText("");
         description.setText("");
         date.setText("");
         time.setText("");
-
-
     }
 
     private void editTodo() throws ParseException {
@@ -142,13 +155,14 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         Date dateAndTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString + " " + timeString);
         long datetime = dateAndTime.getTime();
 
-
         String updateTodoQuery = "UPDATE todos SET title=?, description=?, datetime=? WHERE id=? ";
         TodosDB.execSQL(updateTodoQuery,  new String[] {title.getText().toString(),description.getText().toString(), datetime+"", todoId.toString() });
         Toast.makeText(this, "Todo was UPDATED", Toast.LENGTH_SHORT).show();
-        //TODO: add the ALARM notification thing after validating the date time info
 
-
+        // add an alarm in case the date is in the future
+        if(checkIfFutureTodo(datetime))
+            createOneTimeAlarm(todoId, datetime);
+        // go back after editing
         onBackPressed();
     }
 
@@ -162,7 +176,7 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 String days = String.format(Locale.getDefault(),"%02d",dayOfMonth);
-                String months = String.format(Locale.getDefault(),"%02d",monthOfYear);
+                String months = String.format(Locale.getDefault(),"%02d",monthOfYear) + 1;
                 String years = String.format(Locale.getDefault(),"%04d",year);
                 date.setText(String.format("%s/%s/%s",days,months,years));
             }
@@ -209,8 +223,6 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Bundle bundle = getIntent().getExtras();
-        String username = bundle.getString("username");
         Intent intent = new Intent(EditorActivity.this, ToDoListActivity.class);
         intent.putExtra("username",username);
         startActivity(intent);
@@ -250,4 +262,28 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
             errorMessage += "Time is invalid, ";
         return errorMessage;
     }
+
+    // Create an alarm  that will fire a notification
+    private void createOneTimeAlarm(Integer todoId, long datetime)
+    {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        // Create Intent and pass fields
+        Intent alarmIntent = new Intent(this, AlarmTodoReceiver.class);
+        alarmIntent.putExtra("username", this.username);
+        alarmIntent.putExtra("todoId", todoId);
+        alarmIntent.putExtra("title", this.title.getText().toString());
+
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, ALARM_ID, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Set the alarm
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, datetime, alarmPendingIntent);
+    }
+
+    private boolean checkIfFutureTodo(long todo_datetime) {
+        if(todo_datetime > System.currentTimeMillis())
+            return true;
+        return false;
+    }
+
 }
