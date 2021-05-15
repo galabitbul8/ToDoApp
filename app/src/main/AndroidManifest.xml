@@ -11,6 +11,10 @@
         android:theme="@style/Theme.ToDoApp">
         <activity android:name=".EditorActivity"></activity>
         <activity android:name=".ToDoListActivity" />
+        <receiver
+            android:name=".AlarmTodoReceiver"
+            android:enabled="true"
+            android:exported="true" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

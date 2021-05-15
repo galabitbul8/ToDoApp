@@ -36,6 +36,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     private TodosListAdapter todoAdapter ;
     public static final String MY_DB_NAME = "TodosDB";
     private SearchView searchBar;
+    private int tableLastItemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,6 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         ListView listView = findViewById(R.id.todosListID);
         listView.setAdapter(todoAdapter);
         listView.setTextFilterEnabled((true));
-        //TODO: add implement for ListView.OnItemClickListener
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
         searchBar =(SearchView) findViewById(R.id.searchView);
@@ -73,15 +73,14 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public boolean onQueryTextChange(String text) {
-        // Here is where we are going to implement the filter logic
-        Log.d("myLog4", "onQueryTextChange: " + text);
+        // Perform our search for every text change
         todoAdapter.getFilter().filter(text);
         return false;
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Log.d("myLog4", "onQueryTextSubmit: " + query);
+        // currently there's no need to implement submitting
         return false;
     }
 
@@ -93,8 +92,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     }
     @Override
     public void onBackPressed() {
-        // TODO: check what should we do in case of going back
-        Log.d("myLog", "onBackPressed: ");
+        // TODO: check what should we do in case of going back - for now we will close the activity
+        this.finish();
     }
 
     @Override
@@ -104,6 +103,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
            editor.commit();
            Intent intent = new Intent(ToDoListActivity.this, LoginActivity.class);
            startActivity(intent);
+           this.finish();
        }
         return true;
     }
@@ -114,6 +114,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
             commingFromEdit = true;
             Intent intent = new Intent(ToDoListActivity.this, EditorActivity.class);
             intent.putExtra("username",username);
+            intent.putExtra("tableLastItemId", tableLastItemId);
             startActivity(intent);
             this.finish();
         }
@@ -133,7 +134,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         intent.putExtra("Id",todoInfo.getId());
         intent.putExtra("username",username);
         startActivity(intent);
-
+        this.finish();
     }
 
     @Override
@@ -187,8 +188,8 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
                 description = cursor.getString(cursor.getColumnIndex("description"));
                 datetime = cursor.getLong(cursor.getColumnIndex("datetime"));
                 todosList.add(new TodoInfo(id,title, description, datetime));
-
             } while(cursor.moveToNext());
+            tableLastItemId = id;
             todoAdapter.updateList(todosList);
             todoAdapter.notifyDataSetChanged();
             cursor.close();
