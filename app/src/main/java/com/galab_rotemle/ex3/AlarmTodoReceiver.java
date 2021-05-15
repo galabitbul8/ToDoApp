@@ -33,8 +33,6 @@ public class AlarmTodoReceiver  extends BroadcastReceiver {
         notificationsSetup(context);
 
         notifyNewTodo(username, title,todoId, context);
-        makeText(context, "blablabla title " + title, LENGTH_LONG).show();
-
     }
 
     public void notifyNewTodo(String username,String title, int todoId, Context context)
@@ -52,7 +50,7 @@ public class AlarmTodoReceiver  extends BroadcastReceiver {
                 .setContentText(title)
                 .setContentIntent(pendingIntent)
                 .build();
-
+        Log.d("myLogId", "notifyNewTodo: id " + todoId  );
         notificationManager.notify(todoId, notification);
     }
 

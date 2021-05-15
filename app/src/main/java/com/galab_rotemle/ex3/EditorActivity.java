@@ -273,7 +273,7 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
         alarmIntent.putExtra("todoId", todoId);
         alarmIntent.putExtra("title", this.title.getText().toString());
 
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, ALARM_ID, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, todoId, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Set the alarm
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
