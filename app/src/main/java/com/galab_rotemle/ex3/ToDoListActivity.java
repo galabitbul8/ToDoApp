@@ -140,7 +140,6 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         DeleteTodoDialog(this, position);
-        Toast.makeText(this, "Todo was deleted", Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -156,13 +155,16 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
 
                 todosList.remove(index);
                 todoAdapter.notifyDataSetChanged();
+                Toast.makeText(context, "Todo was deleted", Toast.LENGTH_SHORT).show();
+
             }
+
 
         });
 
         dialog.setIcon(R.drawable.exit);
         dialog.setTitle("Delete Todo");
-        dialog.setMessage("Are you sure you want to delete" + todosList.get(index).getTitle());
+        dialog.setMessage("Are you sure you want to delete " + todosList.get(index).getTitle());
         dialog.setNegativeButton("NO",new DialogInterface.OnClickListener()
         {
             @Override
