@@ -37,18 +37,18 @@ public class AlarmTodoReceiver  extends BroadcastReceiver {
 
     public void notifyNewTodo(String username,String title, int todoId, Context context)
     {
-        Intent intent = new Intent(context, LoginActivity.class);
-        intent.putExtra("idFromNotification", todoId);
-        intent.putExtra("usernameFromNotification", username);
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent, 0);
+//        Intent intent = new Intent(context, LoginActivity.class);
+//        intent.putExtra("idFromNotification", todoId);
+//        intent.putExtra("usernameFromNotification", username);
+//
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent, 0);
 
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notifications_todo)
                 .setContentTitle(username)
                 .setContentText(title)
-                .setContentIntent(pendingIntent)
+//                .setContentIntent(pendingIntent)
                 .build();
         Log.d("myLogId", "notifyNewTodo: id " + todoId  );
         notificationManager.notify(todoId, notification);
