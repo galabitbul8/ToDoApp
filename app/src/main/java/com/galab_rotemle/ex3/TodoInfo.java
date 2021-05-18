@@ -13,7 +13,6 @@ public class TodoInfo {
     {
         this.title = title;
         this.description = description;
-        // TODO: change this - need to get the datetime integer and transform it into strings (Calender)
         this.date = new SimpleDateFormat("dd/MM/yyyy").format(datetime);
         this.time =new SimpleDateFormat("HH:mm").format(datetime);
         this.id = id;

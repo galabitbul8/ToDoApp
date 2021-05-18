@@ -179,7 +179,6 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
         String loadDataQuery = "SELECT id,title, description, datetime FROM todos"
                 + " WHERE username = ? ";
             Cursor cursor = TodosDB.rawQuery(loadDataQuery, new String[] {username});
-        Log.d("myLog1", "before loadListData: ");
         if(cursor.moveToFirst()) {
             int id;
             String title, description;
@@ -215,22 +214,10 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("myLog1", "onResume: com " + commingFromEdit);
         if(commingFromEdit) {
             loadListData();
         }
         commingFromEdit = false;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("myLog6", "onStart: ");
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d("myLog6", "onStop: ");
     }
 
 }

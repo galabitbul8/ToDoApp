@@ -56,11 +56,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-
     @Override
     public void onClick(View v) {
-        Log.d("myLog", "onClick: " + username.getText());
-        // todo : if user and password currect
         if(login.getId() == v.getId()) {
             // check if both fields aren't empty
             if(username.getText().length() == 0 || password.getText().length() == 0) {
@@ -108,7 +105,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Make login clickable after the database is loaded/created
         login.setEnabled(true);
     }
-
 
     public boolean onCreateOptionsMenu(Menu menu)
     {

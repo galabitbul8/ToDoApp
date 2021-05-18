@@ -1,7 +1,6 @@
 package com.galab_rotemle.ex3;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,15 +18,12 @@ public class TodosListAdapter extends ArrayAdapter<TodoInfo> implements Filterab
     {
         super(context, 0, androidFlavors);
         this.myList = androidFlavors;
-        Log.d("myLog5", "TodosListAdapter: " + androidFlavors.size());
         myFullList = new ArrayList<TodoInfo>(myList);
     }
 
     public void updateList(ArrayList<TodoInfo> androidFlavors) {
-        Log.d("myLog5", "updateList: " + androidFlavors.size());
         this.myList = androidFlavors;
         myFullList = new ArrayList<TodoInfo>(myList);
-
     }
 
     @Override
@@ -69,7 +65,6 @@ public class TodosListAdapter extends ArrayAdapter<TodoInfo> implements Filterab
                 } else {//do the search
                     ArrayList<TodoInfo> resultsData = new ArrayList<>();
                     String searchStr = constraint.toString().toUpperCase();
-                    Log.d("myLog5", "performFiltering size: " + myFullList.size());
 
                     for (TodoInfo todo : myFullList) {
                         if (todo.getTitle().toUpperCase().contains(searchStr) || todo.getDescription().toUpperCase().contains(searchStr))

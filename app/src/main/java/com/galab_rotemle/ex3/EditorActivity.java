@@ -46,7 +46,7 @@ public class EditorActivity extends AppCompatActivity implements View.OnClickLis
     private NotificationManager notificationManager;
     private static final String CHANNEL_ID = "channel_todo";
     private static final CharSequence CHANNEL_NAME = "Todo Channel";
-    private int notificationID, tableLastItemId;
+    private int tableLastItemId;
     private String username;
 
     @Override
