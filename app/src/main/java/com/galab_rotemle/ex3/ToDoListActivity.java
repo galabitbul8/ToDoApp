@@ -73,6 +73,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public boolean onQueryTextChange(String text) {
+        todoAdapter.notifyDataSetChanged();
         // Perform our search for every text change
         todoAdapter.getFilter().filter(text);
         return false;
@@ -164,7 +165,7 @@ public class ToDoListActivity extends AppCompatActivity implements View.OnClickL
 
         dialog.setIcon(R.drawable.exit);
         dialog.setTitle("Delete Todo");
-        dialog.setMessage("Are you sure you want to delete " + todosList.get(index).getTitle());
+        dialog.setMessage("Are you sure you want to delete " + todosList.get(index).getTitle() + "?");
         dialog.setNegativeButton("NO",new DialogInterface.OnClickListener()
         {
             @Override

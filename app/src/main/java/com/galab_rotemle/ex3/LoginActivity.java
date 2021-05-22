@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 });
                 dialog.setIcon(R.mipmap.ic_launcher);
                 dialog.setTitle("About App");
-                dialog.setMessage("ToDo App ("+getPackageName()+")\n\nBy Rotem Levy & Gal David Abitbul, 18/05/2021");
+                dialog.setMessage("ToDo App ("+getPackageName()+")\n\nBy Rotem Levy & Gal David Abitbul, 25/05/2021");
 
                 dialog.show();
                 return true;
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 });
                 dialog.setIcon(R.drawable.exit);
                 dialog.setTitle("Exit App");
-                dialog.setMessage("Do you really want to exit ToDo App");
+                dialog.setMessage("Do you really want to exit ToDo App?");
                 dialog.setNegativeButton("NO",new DialogInterface.OnClickListener()
                 {
                     @Override
